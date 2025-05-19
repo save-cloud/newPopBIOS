@@ -1,0 +1,21 @@
+[
+ {
+  "directory": "/Users/yuuko/develop/psp/newPopBIOS",
+  "arguments": [
+   "psp-gcc",
+   "-G0",
+   "-Wall",
+   "-O2",
+   "-w",
+   "-fno-pic",
+   "-I/Users/yuuko/pspdev/psp/include",
+   "-I/Users/yuuko/pspdev/psp/sdk/include",
+   "-I/Users/yuuko/develop/psp/newPopBIOS/external/uofwinst/include",
+   "-c",
+   "/Users/yuuko/develop/psp/newPopBIOS/src/main.c",
+   "-o",
+   "main.o"
+  ],
+  "file": "/Users/yuuko/develop/psp/newPopBIOS/src/main.c"
+ }
+]

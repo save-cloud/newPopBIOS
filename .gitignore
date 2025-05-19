@@ -1,0 +1,4 @@
+.cache/
+*.o
+*.elf
+*.prx

@@ -3,6 +3,7 @@
 #include <pspsdk.h>
 
 /* Used for the SceModule2 struct. */
+#include <string.h>
 #include <systemctrl.h>
 
 #define ROM "ms0:/PSX-BIOS.ROM"
@@ -29,7 +30,7 @@ u32 popKernelFindBIOSInMemory(unsigned char *modname) {
   u32 ret = -1;
 
   /* here we find the pops module */
-  SceModule2 *mod = sceKernelFindModuleByName(modname);
+  SceModule *mod = sceKernelFindModuleByName(modname);
 
   if (mod == NULL)
     return ret;
@@ -60,7 +61,7 @@ int popThread(SceSize argc, void *argp) {
     sceKernelExitDeleteThread(-1);
 
   /* opening the psx bios */
-  SceUID *fd = sceIoOpen(ROM, PSP_O_RDONLY, 0777);
+  SceUID fd = sceIoOpen(ROM, PSP_O_RDONLY, 0777);
 
   if (fd < 0)
     sceKernelExitDeleteThread(-1);

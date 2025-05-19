@@ -1,0 +1,3 @@
+[submodule "external/uofwinst"]
+	path = external/uofwinst
+	url = https://github.com/uofw/uofwinst.git
