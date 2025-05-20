@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
+rm ./newpopbios.prx
 cd ./src
-make
-rm ../newpopbios.prx
-cp ./newpopbios.prx ../
-make clean
+make && cp ./newpopbios.prx ../ && make clean
