@@ -6,6 +6,8 @@
 #include <string.h>
 #include <systemctrl.h>
 
+#define ROM "/PSX-BIOS.ROM"
+
 /* PopBIOS, Kernel(0x1000), ver.0.1 */
 PSP_MODULE_INFO("NewPopBIOS", 0x1000, 0, 1);
 
@@ -55,9 +57,23 @@ int popThread(SceSize argc, void *argp) {
   sceKernelDelayThread(4 * 1000 * 1000);
 
   SceIoStat stat;
-  sceIoGetstat(bios_path, &stat);
+  if (strlen(bios_path) == 0 || sceIoGetstat(bios_path, &stat) < 0 ||
+      stat.st_size > 0x80000) {
+    /* fallback to ROM */
+    int len = strlen(bios_path);
+    while (len > 0 && bios_path[len - 1] != ':')
+      len--;
+    if (len > 0) {
+      bios_path[len] = 0;
+      strcat(bios_path, ROM);
+    } else {
+      memset(bios_path, 0, sizeof(bios_path));
+      strcpy(bios_path, "ms0:");
+      strcat(bios_path, ROM);
+    }
+  }
 
-  if (stat.st_size > 0x80000)
+  if (sceIoGetstat(bios_path, &stat) < 0 || stat.st_size > 0x80000)
     sceKernelExitDeleteThread(-1);
 
   /* opening the psx bios */
@@ -91,10 +107,12 @@ int module_start(SceSize argc, void *argp) {
   int len = strlen(bios_path);
   while (len > 0 && bios_path[len - 1] != '/')
     len--;
-  if (len == 0)
-    return 0;
-  bios_path[len] = 0;
-  strcat(bios_path, "bios.bin");
+  if (len > 0) {
+    bios_path[len] = 0;
+    strcat(bios_path, "bios.bin");
+  } else {
+    memset(bios_path, 0, sizeof(bios_path));
+  }
 
   /* creating a new thread */
   SceUID thid =
