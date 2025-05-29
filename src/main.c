@@ -11,6 +11,8 @@
 /* PopBIOS, Kernel(0x1000), ver.0.1 */
 PSP_MODULE_INFO("NewPopBIOS", 0x1000, 0, 1);
 
+static STMOD_HANDLER previous = NULL;
+
 char bios_path[256];
 
 u32 scex = 0x45454353;
@@ -54,7 +56,7 @@ u32 popKernelFindBIOSInMemory(unsigned char *modname) {
 
 int popThread(SceSize argc, void *argp) {
   /* without the psp would crash. */
-  sceKernelDelayThread(4 * 1000 * 1000);
+  sceKernelDelayThread(1 * 1000 * 1000);
 
   SceIoStat stat;
   if (strlen(bios_path) == 0 || sceIoGetstat(bios_path, &stat) < 0 ||
@@ -85,7 +87,7 @@ int popThread(SceSize argc, void *argp) {
   /* here we find the addr of the bios from the ram */
   u32 bios_addr = popKernelFindBIOSInMemory("pops");
 
-  if (bios_addr < 0)
+  if (bios_addr == -1)
     sceKernelExitDeleteThread(-1);
 
   /* finally, "patching" the bios */
@@ -101,6 +103,18 @@ int popThread(SceSize argc, void *argp) {
   return 0;
 }
 
+int onModuleStart(SceModule2 *module) {
+  if (strcmp(module->modname, "pops") == 0) {
+    /* creating a new thread */
+    SceUID thid =
+        sceKernelCreateThread("pop_thread", popThread, 0x18, 0x10000, 0, NULL);
+    if (thid >= 0)
+      sceKernelStartThread(thid, 0, 0);
+  }
+
+  return previous != NULL ? previous(module) : 0;
+}
+
 int module_start(SceSize argc, void *argp) {
   memset(bios_path, 0, sizeof(bios_path));
   strcpy(bios_path, sceKernelInitFileName());
@@ -114,11 +128,7 @@ int module_start(SceSize argc, void *argp) {
     memset(bios_path, 0, sizeof(bios_path));
   }
 
-  /* creating a new thread */
-  SceUID thid =
-      sceKernelCreateThread("pop_thread", popThread, 0x18, 0x10000, 0, NULL);
-  if (thid >= 0)
-    sceKernelStartThread(thid, 0, 0);
+  previous = sctrlHENSetStartModuleHandler(onModuleStart);
 
   return 0;
 }

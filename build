@@ -2,4 +2,5 @@
 
 rm ./newpopbios.prx
 cd ./src
-make && cp ./newpopbios.prx ../ && make clean
+make && cp ./newpopbios.prx ../
+make clean
