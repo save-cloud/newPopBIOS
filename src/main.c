@@ -56,7 +56,7 @@ u32 popKernelFindBIOSInMemory(unsigned char *modname) {
 
 int popThread(SceSize argc, void *argp) {
   /* without the psp would crash. */
-  sceKernelDelayThread(1 * 1000 * 1000);
+  sceKernelDelayThread(4 * 1000 * 1000);
 
   SceIoStat stat;
   if (strlen(bios_path) == 0 || sceIoGetstat(bios_path, &stat) < 0 ||
